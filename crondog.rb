@@ -39,8 +39,12 @@ module Crondog
       Wildcard.new(self, value)
     end
     
-    def at(value)
-      Fixed.new(self, value)
+    def at(*values)
+      Fixed.new(self, values)
+    end
+
+    def from(value)
+      Ranged.new(self, value)
     end
     
     alias :on :at
@@ -78,23 +82,18 @@ module Crondog
   
   class Fixed < Directive
     def to_s
-      "#{@value}"
-    end
-    
-    def through(end_value)
-      Ranged.new(@job, @value, end_value)
+      @value * ","
     end
   end
   
   class Ranged < Directive
-    def initialize(job, start_val, end_val)
-      @job       = job
-      @start_val = start_val
-      @end_val   = end_val
-    end
-    
     def to_s
-      "#{@start_val}-#{@end_val}"
+      "#{@value}-#{@end_val}"
+    end
+
+    def through(end_val)
+      @end_val = end_val
+      self
     end
   end
 end

@@ -14,7 +14,11 @@ class Jobs < Crondog::JobList
     # report the weather
   end
   
-  at(9).through(17).hours "sit at desk" do
+  on(1, 3, 5).weekdays "run a mile" do
+    # run a mile
+  end
+
+  from(9).through(17).hours "sit at desk" do
     # sit at my desk
   end
 
@@ -44,23 +48,27 @@ class CrondogTest < Test::Unit::TestCase
     assert_equal "7 * * * * report_the_weather.rb", Jobs[2].to_s
   end
   
+  def test_should_set_multiple_times
+    assert_equal "* * * * 1,3,5 run_a_mile.rb", Jobs[3].to_s
+  end
+
   def test_should_set_range_of_times
-    assert_equal "* 9-17 * * * sit_at_desk.rb", Jobs[3].to_s
+    assert_equal "* 9-17 * * * sit_at_desk.rb", Jobs[4].to_s
   end
 
   def test_should_be_chainable
-    assert_equal "*/10 * * 12 * hear_christmas_music.rb", Jobs[4].to_s
+    assert_equal "*/10 * * 12 * hear_christmas_music.rb", Jobs[5].to_s
   end
   
   def test_should_chain_with_and
-    assert_equal "30 17 * * * go_home.rb", Jobs[5].to_s
+    assert_equal "30 17 * * * go_home.rb", Jobs[6].to_s
   end
   
   def test_should_store_block_as_string
-    assert_equal "(1..5).inject { |sum, i| (sum + i) }", Jobs[6].task
+    assert_equal "(1..5).inject { |sum, i| (sum + i) }", Jobs[7].task
   end
   
   def test_stored_block_should_be_executable
-    assert_equal 15, eval(Jobs[6].task)
+    assert_equal 15, eval(Jobs[7].task)
   end
 end
