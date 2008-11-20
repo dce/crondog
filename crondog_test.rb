@@ -18,7 +18,7 @@ class Jobs < Crondog::JobList
     # run a mile
   end
 
-  from(9).through(17).hours "sit at desk" do
+  from(9).to(17).hours "sit at desk" do
     # sit at my desk
   end
 

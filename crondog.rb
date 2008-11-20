@@ -43,13 +43,13 @@ module Crondog
       Fixed.new(self, values)
     end
 
-    def from(value)
-      Ranged.new(self, value)
-    end
-    
     alias :on :at
     alias :during :at
     alias :and :at
+
+    def from(value)
+      Ranged.new(self, value)
+    end
 
     def task=(block)
       klass = Class.new
@@ -91,7 +91,7 @@ module Crondog
       "#{@value}-#{@end_val}"
     end
 
-    def through(end_val)
+    def to(end_val)
       @end_val = end_val
       self
     end
