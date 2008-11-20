@@ -32,7 +32,7 @@ module Crondog
     def to_s
       [:minute, :hour, :day, :month, :weekday].map { |field|
         self.send(field).to_s
-      } * " " + " " + description.downcase.gsub(' ', '_') + ".rb"
+      } * " " + " #{description.downcase.gsub(' ', '_')}.rb"
     end
     
     def every(value = 1)
@@ -52,10 +52,7 @@ module Crondog
       klass.class_eval do
         define_method :task, &block
       end
-      @task = Ruby2Ruby.translate(klass, :task)[11..-5]
-      { /\n  / => "\n", /\n\n/ => "\n" }.each do |pattern, sub|
-        @task.gsub!(pattern, sub)
-      end
+      @task = Ruby2Ruby.translate(klass, :task)[11..-5].gsub(/\n  |\n\n/, "\n")
     end
   end
   
