@@ -101,20 +101,3 @@ module Crondog
     end
   end
 end
-
-# every.day.at(13) "send daily emails" do
-# 
-# end
-# 
-# on(:thursday).through(:saturday).at(13) "send weekly emails" do
-# 
-# end
-# 
-# on.day(1).at(12) "pay rent" do
-#   
-# end
-# 
-# every.day.in.month(2) "celebrate black history" do
-#   
-# end
-
