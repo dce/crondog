@@ -21,18 +21,16 @@ module Crondog
   end
   
   class Job
+    PERIODS = [:minute, :hour, :day, :month, :weekday]
+
     attr_accessor :minute, :hour, :day, :month, :weekday, :description, :task
     
     def initialize
-      [:minute, :hour, :day, :month, :weekday].each do |field|
-        self.send "#{field}=", Wildcard.new(self)
-      end
+      PERIODS.each {|p| self.send "#{p}=", Wildcard.new(self) }
     end
     
     def to_s
-      [:minute, :hour, :day, :month, :weekday].map { |field|
-        self.send(field).to_s
-      } * " " + " #{description.downcase.gsub(' ', '_')}.rb"
+      PERIODS.map {|p| self.send(p) } * " " + " #{description.downcase.gsub(' ', '_')}.rb"
     end
     
     def every(value = 1)
