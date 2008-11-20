@@ -26,10 +26,6 @@ class Jobs < Crondog::JobList
     # hear christmas music
   end
   
-  at(17).hours.and(30).minutes "go home" do
-    # go home
-  end
-  
   at(10).hours.and(0).minutes "sum 1 through 5" do
     (1..5).inject {|sum, i| sum + i }
   end
@@ -61,14 +57,14 @@ class CrondogTest < Test::Unit::TestCase
   end
   
   def test_should_chain_with_and
-    assert_equal "30 17 * * * go_home.rb", Jobs[6].to_s
+    assert_equal "0 10 * * * sum_1_through_5.rb", Jobs.last.to_s
   end
   
   def test_should_store_block_as_string
-    assert_equal "(1..5).inject { |sum, i| (sum + i) }", Jobs[7].task
+    assert_equal "(1..5).inject { |sum, i| (sum + i) }", Jobs.last.task
   end
   
   def test_stored_block_should_be_executable
-    assert_equal 15, eval(Jobs[7].task)
+    assert_equal 15, eval(Jobs.last.task)
   end
 end
