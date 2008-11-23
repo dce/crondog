@@ -1,4 +1,6 @@
 require 'rubygems'
+require 'parse_tree'
+require 'parse_tree_extensions'
 require 'ruby2ruby'
 
 module Crondog
@@ -50,11 +52,7 @@ module Crondog
     end
 
     def task=(block)
-      klass = Class.new
-      klass.class_eval do
-        define_method :task, &block
-      end
-      @task = Ruby2Ruby.translate(klass, :task)[11..-5].gsub(/\n  |\n\n/, "\n")
+      @task = block.to_ruby[7..-3]
     end
   end
   
