@@ -32,7 +32,7 @@ module Crondog
     end
     
     def to_s
-      PERIODS.map {|p| self.send(p) } * " " + " #{description.downcase.gsub(' ', '_')}.rb"
+      PERIODS.map {|p| self.send(p) } * " " + " #{filename}"
     end
     
     def every(value = 1)
@@ -54,6 +54,23 @@ module Crondog
     def task=(block)
       @task = block.to_ruby[7..-3]
     end
+
+    def filename
+      description.downcase.gsub(' ', '_') + ".rb"
+    end
+
+    def to_file
+      File.open(filename, "w") do |file|
+        file.puts task
+      end
+    end
+
+    def set_directive(dir, period, *args, &block)
+      self.send(period.to_s.gsub(/s$/, '') + '=', dir)
+      self.description = args.first
+      self.task = block if block_given?
+      self
+    end
   end
   
   class Directive
@@ -62,11 +79,8 @@ module Crondog
       @value = value
     end
     
-    def method_missing(method, *args, &block)
-      @job.send(method.to_s.gsub(/s$/, '') + '=', self)
-      @job.description ||= args.first
-      @job.task ||= block if block_given?
-      @job
+    def method_missing(period, *args, &block)
+      @job.set_directive(self, period, *args, &block)
     end
   end
   

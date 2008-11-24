@@ -67,4 +67,12 @@ class CrondogTest < Test::Unit::TestCase
   def test_stored_block_should_be_executable
     assert_equal 15, eval(Jobs.last.task)
   end
+
+  def test_should_write_to_file
+    Jobs.last.to_file
+    assert_equal "(1..5).inject { |sum, i| (sum + i) }",
+      File.open("sum_1_through_5.rb", "r").read.strip
+
+    File.delete("sum_1_through_5.rb")
+  end
 end
