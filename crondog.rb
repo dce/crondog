@@ -34,7 +34,7 @@ module Crondog
     end
     
     def to_s
-      @directives.values * " " + " #{filename}"
+      "#{@directives.values * " " } #{filename}"
     end
     
     def every(value = 1)
