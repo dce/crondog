@@ -52,8 +52,23 @@ module Crondog
       Ranged.new(self, value)
     end
     
-    def at(*values)
-      Fixed.new(self, values)
+    def at(*values, &block)
+      if block_given?
+        self.task = block
+        @description = values.pop
+      end
+
+      if values.all? {|v| Date::DAYNAMES.include? v }
+        @directives[:weekday] = Fixed.new(self,
+          values.map {|v| Date::DAYNAMES.index(v) })
+        self
+      elsif values.all? {|v| Date::MONTHNAMES.include? v }
+        @directives[:month] = Fixed.new(self,
+          values.map {|v| Date::MONTHNAMES.index(v) })
+        self
+      else
+        Fixed.new(self, values)
+      end
     end
 
     alias :on :at

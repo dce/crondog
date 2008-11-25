@@ -26,6 +26,14 @@ class Jobs < Crondog::JobList
     # hear christmas music
   end
   
+  on("Tuesday").at(11).hours "talk to Morrie" do
+    # I'm a dick
+  end
+
+  during "April", "bring an umbrella" do
+    # bring an umbrella
+  end
+
   at(10).hours.and(0).minutes "sum 1 through 5" do
     (1..5).inject {|sum, i| sum + i }
   end
@@ -56,6 +64,14 @@ class CrondogTest < Test::Unit::TestCase
     assert_equal "*/10 * * 12 * hear_christmas_music.rb", Jobs[5].to_s
   end
   
+  def test_should_accept_literal_day_names
+    assert_equal "* 11 * * 2 talk_to_morrie.rb", Jobs[6].to_s
+  end
+
+  def test_should_accept_literal_month_name
+    assert_equal "* * * 4 * bring_an_umbrella.rb", Jobs[7].to_s
+  end
+
   def test_should_chain_with_and
     assert_equal "0 10 * * * sum_1_through_5.rb", Jobs.last.to_s
   end
@@ -77,7 +93,7 @@ class CrondogTest < Test::Unit::TestCase
 
   def test_should_display_crontab
     tab = Jobs.crontab
-    assert_equal 7, tab.split("\n").size
+    assert_equal 9, tab.split("\n").size
     assert_match /check_email/, tab
     assert_match /sum_1_through_5/, tab
   end
