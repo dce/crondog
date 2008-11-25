@@ -11,6 +11,10 @@ module Crondog
     def self.jobs
       @@jobs
     end
+
+    def self.crontab
+      jobs * "\n"
+    end
   
     def self.method_missing(method, *args, &block)
       job = Job.new
@@ -33,8 +37,11 @@ module Crondog
       end
     end
     
-    def to_s
-      "#{@directives.values * " " } #{filename}"
+    def set_directive(directive, period, description, &block)
+      @directives[period.to_s.singularize.to_sym] = directive
+      @description = description
+      self.task = block if block_given?
+      self
     end
     
     def every(value = 1)
@@ -53,6 +60,10 @@ module Crondog
     alias :during :at
     alias :and :at
 
+    def to_s
+      "#{@directives.values * " " } #{filename}"
+    end
+
     def task=(block)
       @task = block.to_ruby[7..-3]
     end
@@ -65,13 +76,6 @@ module Crondog
       File.open(filename, "w") do |file|
         file.puts task
       end
-    end
-
-    def set_directive(directive, period, description, &block)
-      @directives[period.to_s.singularize.to_sym] = directive
-      @description = description
-      self.task = block if block_given?
-      self
     end
   end
   

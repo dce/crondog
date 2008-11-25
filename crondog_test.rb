@@ -74,4 +74,11 @@ class CrondogTest < Test::Unit::TestCase
       File.open("sum_1_through_5.rb").read.strip
     File.delete("sum_1_through_5.rb")
   end
+
+  def test_should_display_crontab
+    tab = Jobs.crontab
+    assert_equal 7, tab.split("\n").size
+    assert_match /check_email/, tab
+    assert_match /sum_1_through_5/, tab
+  end
 end
