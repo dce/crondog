@@ -25,14 +25,17 @@ module Crondog
   class Job
     PERIODS = [:minute, :hour, :day, :month, :weekday]
 
-    attr_accessor :minute, :hour, :day, :month, :weekday, :description, :task
-    
+    attr_accessor :task
+
     def initialize
-      PERIODS.each {|p| self.send "#{p}=", Wildcard.new(self) }
+      @directives = PERIODS.inject({}) do |directives, period|
+        directives[period] = Wildcard.new(self)
+        directives
+      end
     end
     
     def to_s
-      PERIODS.map {|p| self.send(p) } * " " + " #{filename}"
+      PERIODS.map {|p| @directives[p] } * " " + " #{filename}"
     end
     
     def every(value = 1)
@@ -56,7 +59,7 @@ module Crondog
     end
 
     def filename
-      description.downcase.gsub(' ', '_') + ".rb"
+      @description.downcase.gsub(' ', '_') + ".rb"
     end
 
     def to_file
@@ -65,9 +68,9 @@ module Crondog
       end
     end
 
-    def set_directive(dir, period, *args, &block)
-      self.send(period.to_s.gsub(/s$/, '') + '=', dir)
-      self.description = args.first
+    def set_directive(dir, period, desc, &block)
+      @directives[period.to_s.gsub(/s$/, '').to_sym] = dir
+      @description = desc
       self.task = block if block_given?
       self
     end
@@ -79,8 +82,8 @@ module Crondog
       @value = value
     end
     
-    def method_missing(period, *args, &block)
-      @job.set_directive(self, period, *args, &block)
+    def method_missing(method, *args, &block)
+      @job.set_directive(self, method, args.first, &block)
     end
   end
   

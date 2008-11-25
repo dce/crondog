@@ -72,7 +72,6 @@ class CrondogTest < Test::Unit::TestCase
     Jobs.last.to_file
     assert_equal "(1..5).inject { |sum, i| (sum + i) }",
       File.open("sum_1_through_5.rb", "r").read.strip
-
     File.delete("sum_1_through_5.rb")
   end
 end
