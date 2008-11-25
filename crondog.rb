@@ -53,22 +53,7 @@ module Crondog
     end
     
     def at(*values, &block)
-      if block_given?
-        self.task = block
-        @description = values.pop
-      end
-
-      if values.all? {|v| Date::DAYNAMES.include? v }
-        @directives[:weekday] = Fixed.new(self,
-          values.map {|v| Date::DAYNAMES.index(v) })
-        self
-      elsif values.all? {|v| Date::MONTHNAMES.include? v }
-        @directives[:month] = Fixed.new(self,
-          values.map {|v| Date::MONTHNAMES.index(v) })
-        self
-      else
-        Fixed.new(self, values)
-      end
+      Fixed.create(self, values, &block)
     end
 
     alias :on :at
@@ -112,6 +97,18 @@ module Crondog
   end
   
   class Fixed < Directive
+    def self.create(job, values, &block)
+      description = values.pop if block_given?
+
+      if days = values.map {|v| Date::DAYNAMES.index(v) } and days.all?
+        Fixed.new(job, days).weekdays(description, &block)
+      elsif months = values.map {|v| Date::MONTHNAMES.index(v) } and months.all?
+        Fixed.new(job, months).months(description, &block)
+      else
+        Fixed.new(job, values)
+      end
+    end
+
     def to_s
       @value * ","
     end
@@ -119,11 +116,11 @@ module Crondog
   
   class Ranged < Directive
     def to_s
-      "#{@value}-#{@end_val}"
+      "#{@value}-#{@end_value}"
     end
 
-    def to(end_val)
-      @end_val = end_val
+    def to(end_value)
+      @end_value = end_value
       self
     end
   end

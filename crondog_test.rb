@@ -31,7 +31,7 @@ class Jobs < Crondog::JobList
   end
 
   during "April", "bring an umbrella" do
-    # bring an umbrella
+    p "Bring an umbrella!"
   end
 
   at(10).hours.and(0).minutes "sum 1 through 5" do
@@ -70,6 +70,7 @@ class CrondogTest < Test::Unit::TestCase
 
   def test_should_accept_literal_month_name
     assert_equal "* * * 4 * bring_an_umbrella.rb", Jobs[7].to_s
+    assert_equal 'p("Bring an umbrella!")', Jobs[7].task
   end
 
   def test_should_chain_with_and
