@@ -2,6 +2,7 @@ require 'rubygems'
 require 'parse_tree'
 require 'parse_tree_extensions'
 require 'ruby2ruby'
+require 'activesupport'
 
 module Crondog
   class JobList
@@ -23,23 +24,25 @@ module Crondog
   end
   
   class Job
-    PERIODS = [:minute, :hour, :day, :month, :weekday]
-
     attr_accessor :task
 
     def initialize
-      @directives = PERIODS.inject({}) do |directives, period|
-        directives[period] = Wildcard.new(self)
-        directives
+      @directives = ActiveSupport::OrderedHash.new
+      [:minute, :hour, :day, :month, :weekday].each do |period|
+        @directives[period] = Wildcard.new(self)
       end
     end
     
     def to_s
-      PERIODS.map {|p| @directives[p] } * " " + " #{filename}"
+      @directives.values * " " + " #{filename}"
     end
     
     def every(value = 1)
       Wildcard.new(self, value)
+    end
+
+    def from(value)
+      Ranged.new(self, value)
     end
     
     def at(*values)
@@ -49,10 +52,6 @@ module Crondog
     alias :on :at
     alias :during :at
     alias :and :at
-
-    def from(value)
-      Ranged.new(self, value)
-    end
 
     def task=(block)
       @task = block.to_ruby[7..-3]
@@ -68,9 +67,9 @@ module Crondog
       end
     end
 
-    def set_directive(dir, period, desc, &block)
-      @directives[period.to_s.gsub(/s$/, '').to_sym] = dir
-      @description = desc
+    def set_directive(directive, period, description, &block)
+      @directives[period.to_s.singularize.to_sym] = directive
+      @description = description
       self.task = block if block_given?
       self
     end
