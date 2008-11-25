@@ -9,7 +9,7 @@ Set finite times with 'at', and chain them with 'and':
       (1..5).inject {|sum, i| sum + i }
     end
 
-Repeating tasks use 'every':
+Periodic tasks use 'every':
 
     every(5).minutes "ping production server" do
       `ping 127.0.0.1`
