@@ -69,7 +69,7 @@ module Crondog
     end
 
     def filename
-      @description.downcase.gsub(' ', '_') + ".rb"
+      @description.downcase.gsub(' ', '_').gsub(/\W+/, '') + ".rb"
     end
 
     def to_file
@@ -85,8 +85,22 @@ module Crondog
       @value = value
     end
     
+    def self.named_days(*values)
+      days = values.map {|v| Date::DAYNAMES.index(v) }
+      days if days.all?
+    end
+
+    def self.named_months(*values)
+      months = values.map {|v| Date::MONTHNAMES.index(v) }
+      months if months.all?
+    end
+
     def method_missing(method, *args, &block)
-      @job.set_directive(self, method, args.first, &block)
+      if method.to_s =~ /^named_/
+        self.class.send(method, *args, &block)
+      else
+        @job.set_directive(self, method, args.first, &block)
+      end
     end
   end
   
@@ -100,9 +114,9 @@ module Crondog
     def self.create(job, values, &block)
       description = values.pop if block_given?
 
-      if days = values.map {|v| Date::DAYNAMES.index(v) } and days.all?
+      if days = named_days(*values)
         Fixed.new(job, days).weekdays(description, &block)
-      elsif months = values.map {|v| Date::MONTHNAMES.index(v) } and months.all?
+      elsif months = named_months(*values)
         Fixed.new(job, months).months(description, &block)
       else
         Fixed.new(job, values)
@@ -119,9 +133,19 @@ module Crondog
       "#{@value}-#{@end_value}"
     end
 
-    def to(end_value)
-      @end_value = end_value
-      self
+    def to(*values, &block)
+      @end_value  = values.first
+      description = values.pop if block_given?
+
+      if named_days(@value, @end_value)
+        @value, @end_value = named_days(@value, @end_value)
+        self.weekdays(description, &block)
+      elsif named_months(@value, @end_value)
+        @value, @end_value = named_months(@value, @end_value)
+        self.months(description, &block)
+      else
+        self
+      end
     end
   end
 end

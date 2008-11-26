@@ -34,6 +34,14 @@ class Jobs < Crondog::JobList
     p "Bring an umbrella!"
   end
 
+  from("Tuesday").to("Thursday").at(12).hours "have a beer" do
+    # have a beer
+  end
+
+  from("June").to "September", "school's out for summer" do
+    p("No more teachers")
+  end
+
   at(10).hours.and(0).minutes "sum 1 through 5" do
     (1..5).inject {|sum, i| sum + i }
   end
@@ -73,6 +81,15 @@ class CrondogTest < Test::Unit::TestCase
     assert_equal 'p("Bring an umbrella!")', Jobs[7].task
   end
 
+  def test_ranges_should_accept_literals
+    assert_equal "* 12 * * 2-4 have_a_beer.rb", Jobs[8].to_s
+  end
+
+  def test_should_handle_literal_range_as_final_directive
+    assert_equal "* * * 6-9 * schools_out_for_summer.rb", Jobs[9].to_s
+    assert_equal 'p("No more teachers")', Jobs[9].task
+  end
+
   def test_should_chain_with_and
     assert_equal "0 10 * * * sum_1_through_5.rb", Jobs.last.to_s
   end
@@ -94,7 +111,7 @@ class CrondogTest < Test::Unit::TestCase
 
   def test_should_display_crontab
     tab = Jobs.crontab
-    assert_equal 9, tab.split("\n").size
+    assert_equal Jobs.size, tab.split("\n").size
     assert_match /check_email/, tab
     assert_match /sum_1_through_5/, tab
   end
